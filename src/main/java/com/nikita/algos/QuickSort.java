@@ -1,5 +1,6 @@
 package com.nikita.algos;
 
+import com.nikita.algos.utils.SortUtils;
 import java.util.Random;
 
 public class QuickSort implements SortAlgorithm {
@@ -7,6 +8,10 @@ public class QuickSort implements SortAlgorithm {
 
     @Override
     public void sort(int[] arr, Metrics metrics) {
+        if (arr == null || arr.length <= 1) return;
+
+        SortUtils.shuffle(arr);
+
         quickSort(arr, 0, arr.length - 1, metrics);
     }
 
@@ -21,19 +26,9 @@ public class QuickSort implements SortAlgorithm {
         metrics.enterRecursion();
 
         int pivotIndex = left + rand.nextInt(right - left + 1);
-        swap(arr, pivotIndex, right, metrics);
-        int pivot = arr[right];
+        SortUtils.swap(arr, pivotIndex, right);
 
-        int i = left - 1;
-        for (int j = left; j < right; j++) {
-            metrics.incComparisons();
-            if (arr[j] <= pivot) {
-                i++;
-                swap(arr, i, j, metrics);
-            }
-        }
-        swap(arr, i + 1, right, metrics);
-        int pi = i + 1;
+        int pi = SortUtils.partition(arr, left, right, metrics);
 
         if (pi - 1 - left < right - (pi + 1)) {
             quickSort(arr, left, pi - 1, metrics);
@@ -44,13 +39,5 @@ public class QuickSort implements SortAlgorithm {
         }
 
         metrics.exitRecursion();
-    }
-
-    private void swap(int[] arr, int i, int j, Metrics metrics) {
-        if (i != j) {
-            int tmp = arr[i];
-            arr[i] = arr[j];
-            arr[j] = tmp;
-        }
     }
 }

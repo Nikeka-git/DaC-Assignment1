@@ -17,6 +17,7 @@ public class MergeSort implements SortAlgorithm {
     }
 
     private void mergeSort(int[] arr, int left, int right, int[] buffer, Metrics metrics) {
+        if (arr == null || arr.length <= 1) return;
         if (right - left + 1 <= CUTOFF) {
             insertionSort(arr, left, right, metrics);
             return;

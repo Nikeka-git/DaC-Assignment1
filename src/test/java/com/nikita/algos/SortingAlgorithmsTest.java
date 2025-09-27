@@ -10,8 +10,8 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 public class SortingAlgorithmsTest {
 
     private final List<SortAlgorithm> algorithms = List.of(
-            new MergeSort()
-
+            new MergeSort(),
+            new QuickSort()
     );
 
     @Test

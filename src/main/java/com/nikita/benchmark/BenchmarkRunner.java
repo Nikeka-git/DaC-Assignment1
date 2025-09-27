@@ -7,7 +7,7 @@ import java.util.stream.IntStream;
 
 public class BenchmarkRunner {
     public static void main(String[] args) {
-        List<SortAlgorithm> algorithms = List.of(new MergeSort());
+        List<SortAlgorithm> algorithms = List.of(new QuickSort());
 
         Map<String, Function<Integer, int[]>> generators = new LinkedHashMap<>();
         generators.put("random", n -> new Random().ints(n, 0, 1_000_000).toArray());
@@ -31,7 +31,7 @@ public class BenchmarkRunner {
         int[] sizes = {100, 1000, 5000, 10000};
         int trials = 100;
 
-        try (CsvWriter csv = new CsvWriter("results/mergesort/mergesort_v2.csv")) {
+        try (CsvWriter csv = new CsvWriter("results/quicksort/quicksort.csv")) {
             for (SortAlgorithm algo : algorithms) {
                 for (Map.Entry<String, Function<Integer, int[]>> entry : generators.entrySet()) {
                     String caseName = entry.getKey();

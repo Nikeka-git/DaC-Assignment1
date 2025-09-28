@@ -7,6 +7,7 @@ import java.util.List;
 
 
 public class ClosestPair {
+    public ClosestPair() {}
 
     public static class Point {
         public final double x, y;

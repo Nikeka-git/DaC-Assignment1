@@ -3,6 +3,7 @@ package com.nikita.algos;
 import com.nikita.algos.utils.SortUtils;
 
 public class DeterministicSelect {
+    public DeterministicSelect() {}
 
     public int select(int[] a, int k, Metrics metrics) {
         if (a == null || a.length == 0) {

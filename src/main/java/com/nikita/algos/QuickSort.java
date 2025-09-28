@@ -4,14 +4,12 @@ import com.nikita.algos.utils.SortUtils;
 import java.util.Random;
 
 public class QuickSort implements SortAlgorithm {
-    private Random rand = new Random();
+    private final Random rand = new Random();
 
     @Override
     public void sort(int[] arr, Metrics metrics) {
         if (arr == null || arr.length <= 1) return;
-
-        SortUtils.shuffle(arr);
-
+        SortUtils.shuffle(arr);           // рандомизация перед сортировкой
         quickSort(arr, 0, arr.length - 1, metrics);
     }
 
@@ -20,24 +18,42 @@ public class QuickSort implements SortAlgorithm {
         return "QuickSort";
     }
 
+    /**
+     * Итеративно-рекурсивный QuickSort: рекурсируем только в меньшую часть,
+     * большую обрабатываем циклом (tail recursion elimination).
+     */
     private void quickSort(int[] arr, int left, int right, Metrics metrics) {
-        if (left >= right) return;
+        while (left < right) {
+            // случайный pivot, переместим его в правый конец
+            int pivotIndex = left + rand.nextInt(right - left + 1);
+            SortUtils.swap(arr, pivotIndex, right);
 
-        metrics.enterRecursion();
+            int pi = SortUtils.partition(arr, left, right, metrics);
+            // теперь pivot окончательно стоит на позиции pi
 
-        int pivotIndex = left + rand.nextInt(right - left + 1);
-        SortUtils.swap(arr, pivotIndex, right);
+            int leftSize = pi - left;   // количество элементов в левой части
+            int rightSize = right - pi; // количество в правой части
 
-        int pi = SortUtils.partition(arr, left, right, metrics);
-
-        if (pi - 1 - left < right - (pi + 1)) {
-            quickSort(arr, left, pi - 1, metrics);
-            quickSort(arr, pi + 1, right, metrics);
-        } else {
-            quickSort(arr, pi + 1, right, metrics);
-            quickSort(arr, left, pi - 1, metrics);
+            // Рекурсируем в меньшую часть, а в большую — продолжаем цикл (меняем left/right).
+            if (leftSize < rightSize) {
+                // рекурсивно обрабатываем левую (меньшую) часть
+                if (left < pi - 1) {
+                    metrics.enterRecursion();
+                    quickSort(arr, left, pi - 1, metrics);
+                    metrics.exitRecursion();
+                }
+                // затем продолжаем обработку правой части итеративно
+                left = pi + 1;
+            } else {
+                // рекурсивно обрабатываем правую (меньшую или равную) часть
+                if (pi + 1 < right) {
+                    metrics.enterRecursion();
+                    quickSort(arr, pi + 1, right, metrics);
+                    metrics.exitRecursion();
+                }
+                // затем продолжаем обработку левой части итеративно
+                right = pi - 1;
+            }
         }
-
-        metrics.exitRecursion();
     }
 }

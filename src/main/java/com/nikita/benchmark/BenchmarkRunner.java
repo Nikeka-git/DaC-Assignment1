@@ -9,6 +9,10 @@ public class BenchmarkRunner {
     public static void main(String[] args) {
         List<SortAlgorithm> algorithms = List.of(new QuickSort());
 
+        List<DeterministicSelect> selectAlgorithms = List.of(
+                new DeterministicSelect()
+        );
+
         Map<String, Function<Integer, int[]>> generators = new LinkedHashMap<>();
         generators.put("random", n -> new Random().ints(n, 0, 1_000_000).toArray());
         generators.put("sorted", n -> IntStream.range(0, n).toArray());
@@ -28,10 +32,10 @@ public class BenchmarkRunner {
             return arr;
         });
 
-        int[] sizes = {100, 1000, 5000, 10000};
+        int[] sizes = {50, 100, 1000, 2000};
         int trials = 100;
 
-        try (CsvWriter csv = new CsvWriter("results/quicksort/quicksort.csv")) {
+        try (CsvWriter csv = new CsvWriter("results/deterministic/deterministic.csv")) {
             for (SortAlgorithm algo : algorithms) {
                 for (Map.Entry<String, Function<Integer, int[]>> entry : generators.entrySet()) {
                     String caseName = entry.getKey();
@@ -65,6 +69,48 @@ public class BenchmarkRunner {
                         long avgDepth = Math.round((double) totalDepth / trials);
 
                         csv.writeResult(algo.name() + "_" + caseName, size, avgTime, avgComps, avgAlloc, avgDepth);
+                    }
+                }
+            }
+            for (DeterministicSelect sel : selectAlgorithms) {
+                for (var entry : generators.entrySet()) {
+                    String caseName = entry.getKey();
+                    Function<Integer, int[]> generator = entry.getValue();
+
+                    for (int size : sizes) {
+                        double totalTime = 0.0;
+                        long totalComparisons = 0;
+                        long totalDepth = 0;
+                        long totalAllocations = 0;
+
+                        for (int t = 0; t < trials; t++) {
+                            int[] input = generator.apply(size);
+                            int k = new Random().nextInt(size);
+                            Metrics metrics = new Metrics();
+
+                            metrics.startTimer();
+                            sel.select(Arrays.copyOf(input, input.length), k, metrics);
+                            metrics.endTimer();
+
+                            totalTime += metrics.getElapsedMillis();
+                            totalComparisons += metrics.getComparisons();
+                            totalDepth += metrics.getMaxDepth();
+                            totalAllocations += metrics.getAllocations();
+                        }
+
+                        double avgTime = totalTime / trials;
+                        long avgComparisons = Math.round((double) totalComparisons / trials);
+                        long avgDepth = Math.round((double) totalDepth / trials);
+                        long avgAllocations = Math.round((double) totalAllocations / trials);
+
+                        csv.writeResult(
+                                "select_MoM5_" + caseName,
+                                size,
+                                avgTime,
+                                avgComparisons,
+                                avgAllocations,
+                                avgDepth
+                        );
                     }
                 }
             }

@@ -16,7 +16,7 @@ public class DeterministicSelectTest {
 
         int trials = 100;
         for (int t = 0; t < trials; t++) {
-            int n = 200 + rnd.nextInt(800); // sizes between 200 and 999
+            int n = 200 + rnd.nextInt(800);
             int[] arr = rnd.ints(n, -10000, 10000).toArray();
             int[] sorted = Arrays.copyOf(arr, arr.length);
             Arrays.sort(sorted);

@@ -1,6 +1,8 @@
 package com.nikita.benchmark;
 
 import com.nikita.algos.*;
+import com.nikita.algos.ClosestPair;
+
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.IntStream;
@@ -114,6 +116,48 @@ public class BenchmarkRunner {
                     }
                 }
             }
+            ClosestPair cp = new ClosestPair();
+
+            Map<String, Function<Integer, ClosestPair.Point[]>> pointGenerators = new LinkedHashMap<>();
+            pointGenerators.put("random", n -> {
+                Random rnd = new Random();
+                ClosestPair.Point[] pts = new ClosestPair.Point[n];
+                for (int i = 0; i < n; i++) pts[i] = new ClosestPair.Point(rnd.nextDouble()*1e6, rnd.nextDouble()*1e6);
+                return pts;
+            });
+
+            int[] cpSizes = {100, 500, 1000, 2000};
+            int cpTrials = 100;
+
+            for (var entry : pointGenerators.entrySet()) {
+                String caseName = entry.getKey();
+                Function<Integer, ClosestPair.Point[]> generator = entry.getValue();
+
+                for (int n : cpSizes) {
+                    double totalTime = 0.0;
+                    long totalComparisons = 0;
+                    long totalDepth = 0;
+
+                    for (int t = 0; t < cpTrials; t++) {
+                        ClosestPair.Point[] pts = generator.apply(n);
+                        Metrics metrics = new Metrics();
+                        metrics.startTimer();
+                        double best = cp.findClosest(Arrays.copyOf(pts, pts.length), metrics);
+                        metrics.endTimer();
+
+                        totalTime += metrics.getElapsedMillis();
+                        totalComparisons += metrics.getComparisons();
+                        totalDepth += metrics.getMaxDepth();
+                    }
+
+                    double avgTime = totalTime / cpTrials;
+                    long avgComparisons = Math.round((double) totalComparisons / cpTrials);
+                    long avgDepth = Math.round((double) totalDepth / cpTrials);
+
+                    csv.writeResult("closest_divide_" + caseName, n, avgTime, avgComparisons, 0L, avgDepth);
+                }
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

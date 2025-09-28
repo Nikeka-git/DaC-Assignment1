@@ -1,5 +1,0 @@
-algorithm,n,time_ms,comparisons,allocations,depth
-QuickSort_random,1000,0.791705,11395,0,5
-QuickSort_sorted,1000,0.162588,11080,0,5
-QuickSort_reversed,1000,0.135117,10485,0,5
-QuickSort_constant,1000,0.429469,499500,0,0
